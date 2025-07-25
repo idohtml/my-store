@@ -36,7 +36,7 @@ export default function Header() {
   const { data: session } = authClient.useSession();
 
   return (
-    <header className="flex items-center justify-between py-4 px-0 max-w-7xl bg-white mx-auto">
+    <header className="flex items-center justify-between py-4 px-4 xl:px-0 max-w-7xl bg-white mx-auto">
       <Link href="/">
         <Image src="/images/logo.png" alt="My Store" width={100} height={100} />
       </Link>
