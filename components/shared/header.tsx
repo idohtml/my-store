@@ -13,6 +13,7 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 import { Button } from "../ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 function ListItem({ href, title }: { href: string; title: string }) {
   return (
@@ -34,6 +35,16 @@ const MAIN_NAV = NAV_LINKS.find((l) => l.label === "Products")?.children || [];
 
 export default function Header() {
   const { data: session } = authClient.useSession();
+
+  // Helper to get avatar fallback (first letter of first name + last name)
+  function getAvatarFallback(user: any) {
+    if (!user?.name) return "?";
+    const parts = user.name.trim().split(" ");
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || "?";
+    return `${parts[0][0]?.toUpperCase() || ""}${
+      parts[parts.length - 1][0]?.toUpperCase() || ""
+    }`;
+  }
 
   return (
     <header className="flex items-center justify-between py-4 px-4 xl:px-0 max-w-7xl bg-white mx-auto">
@@ -97,13 +108,19 @@ export default function Header() {
       </nav>
       <div className="flex items-center gap-2">
         {session?.user ? (
-          <Button
-            className="rounded-full cursor-pointer"
-            onClick={() => authClient.signOut()}
-            variant="outline"
-          >
-            Logout
-          </Button>
+          <>
+            <Button
+              className="rounded-full cursor-pointer"
+              onClick={() => authClient.signOut()}
+              variant="outline"
+            >
+              Logout
+            </Button>
+            <Avatar>
+              <AvatarImage src={session.user.image || undefined} />
+              <AvatarFallback>{getAvatarFallback(session.user)}</AvatarFallback>
+            </Avatar>
+          </>
         ) : (
           <>
             <Button className="rounded-full" variant="outline" asChild>
