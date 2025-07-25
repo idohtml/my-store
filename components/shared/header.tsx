@@ -1,3 +1,6 @@
+"use client";
+
+import { authClient } from "@/lib/auth-client";
 import { NAV_LINKS } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,6 +33,8 @@ function ListItem({ href, title }: { href: string; title: string }) {
 const MAIN_NAV = NAV_LINKS.find((l) => l.label === "Products")?.children || [];
 
 export default function Header() {
+  const { data: session } = authClient.useSession();
+
   return (
     <header className="flex items-center justify-between py-4 px-0 max-w-7xl bg-white mx-auto">
       <Link href="/">
@@ -91,12 +96,24 @@ export default function Header() {
         </NavigationMenu>
       </nav>
       <div className="flex items-center gap-2">
-        <Button className="rounded-full" variant="outline" asChild>
-          <Link href="/login">Login</Link>
-        </Button>
-        <Button className="rounded-full" asChild>
-          <Link href="/register">Register</Link>
-        </Button>
+        {session?.user ? (
+          <Button
+            className="rounded-full cursor-pointer"
+            onClick={() => authClient.signOut()}
+            variant="outline"
+          >
+            Logout
+          </Button>
+        ) : (
+          <>
+            <Button className="rounded-full" variant="outline" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button className="rounded-full" asChild>
+              <Link href="/register">Register</Link>
+            </Button>
+          </>
+        )}
       </div>
     </header>
   );
