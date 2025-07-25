@@ -87,3 +87,45 @@ export const NAV_LINKS = [
     ],
   },
 ];
+
+export const SOCIAL_LINKS = [
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+  },
+  {
+    label: "Twitter",
+    href: "https://twitter.com",
+  },
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+  },
+  {
+    label: "TikTok",
+    href: "https://tiktok.com",
+  },
+];
+
+export const CUSTOMER_SERVICE_LINKS = [
+  {
+    label: "Contact Us",
+    href: "/contact",
+  },
+  {
+    label: "FAQ",
+    href: "/faq",
+  },
+  {
+    label: "Shipping & Returns",
+    href: "/shipping",
+  },
+  {
+    label: "Privacy Policy",
+    href: "/privacy",
+  },
+  {
+    label: "Terms & Conditions",
+    href: "/terms",
+  },
+];
