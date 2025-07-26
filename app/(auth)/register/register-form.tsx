@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { registerSchema, type RegisterFormData } from "@/lib/validators";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -14,30 +15,44 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
     setSuccess(false);
-    const { data, error } = await authClient.signUp.email({
-      name,
-      email,
-      password,
+    setErrors({});
+
+    // Get form data
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    // Validate form data
+    const validationResult = registerSchema.safeParse(data);
+
+    if (!validationResult.success) {
+      toast.error(
+        "Something went wrong. Please check your input and try again."
+      );
+      return;
+    }
+
+    const { data: responseData, error } = await authClient.signUp.email({
+      name: data.name,
+      email: data.email,
+      password: data.password,
       callbackURL: "/",
     });
 
     if (error) {
-      toast.error(error.message || "Registration failed");
+      toast.error("Something went wrong. Please try again.");
     } else {
       setSuccess(true);
-      setName("");
-      setEmail("");
-      setPassword("");
+      e.currentTarget.reset();
       toast.success("Registration successful! Check your email.");
     }
   };
@@ -69,46 +84,35 @@ export function RegisterForm({
               </Link>
             </div>
           </div>
-          {error && (
-            <div className="text-red-500 text-center text-sm">{error}</div>
-          )}
-          {success && (
-            <div className="text-green-600 text-center text-sm">
-              Registration successful! Check your email.
-            </div>
-          )}
           <div className="flex flex-col gap-6">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
+                name="name"
                 type="text"
                 placeholder="Your Name"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="your@email.com"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full">

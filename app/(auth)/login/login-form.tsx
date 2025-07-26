@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { loginSchema, type LoginFormData } from "@/lib/validators";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -14,18 +15,36 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Partial<LoginFormData>>({});
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
+    setErrors({});
+
+    // Get form data
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    // Validate form data
+    const validationResult = loginSchema.safeParse(data);
+
+    if (!validationResult.success) {
+      toast.error(
+        "Something went wrong. Please check your input and try again."
+      );
+      return;
+    }
+
+    const { data: responseData, error } = await authClient.signIn.email({
+      email: data.email,
+      password: data.password,
       callbackURL: "/",
     });
     if (error) {
-      toast.error(error.message || "Login failed");
+      toast.error("Something went wrong. Please try again.");
     } else {
       toast.success("Login successful!");
     }
@@ -63,24 +82,20 @@ export function LoginForm({
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                type="email"
                 name="email"
+                type="email"
                 placeholder="your@email.com"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                type="password"
                 name="password"
+                type="password"
                 placeholder="********"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
